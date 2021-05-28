@@ -1,18 +1,29 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+      <div>
+        <Search msg="Welcome to Your Vue.js App"/>
+      </div>
+      <hr>
+      
+      <div class="container d-flex">
+          <div class="row">
+            <div v-for="item in 10" :key="item.id" class="w-25">
+                <Card></Card>       
+            </div>
+          </div>
+      </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import Search from './components/Search.vue'
+import Card from './components/Card.vue'
 
 export default {
-  name: 'App',
-  components: {
-    HelloWorld
-  }
+    name: 'App',
+    components: {
+        Search,Card
+    }   
 }
 </script>
 
