@@ -1,9 +1,13 @@
 <template>
-<div class="container">
+<div class="container"  >
         <div class="container d-flex justify-content-center">
-            <div>FILMKU</div>
+            <div>
+                <h1>FILMKU</h1>
+            </div>
             <div style="width: 25%"></div>
             <b-form-input v-model="search"  placeholder="Search Film"></b-form-input>
+            <!-- <b-icon icon="exclamation-circle-fill" variant="info" style="width: 60px; height: 60px;" data-toggle="popover" title="Popover title" data-content="And here's some amazing content. It's very engaging. Right?"></b-icon> -->
+            <!-- <button type="button" class="btn btn-lg btn-danger rounded-circle" ></button> -->
         </div>
         <hr>
         <div class="container d-flex">
@@ -11,7 +15,7 @@
             <div v-for="item in filteredSheeps" :key="item" class="card1">      
                     <div>
                       <b-card
-                        :title="item.title"
+                        :title="item.title + ' (' +  item.releaseYear + ')' "
                         :img-src="item.urlPic"
                         img-alt="Image"
                         img-top
@@ -20,10 +24,11 @@
                         class="mb-2"
                       >
                         <b-card-text>
-                          Rilis Pada Tahun {{item.releaseYear}}
+                          <h6>
+                            Director : {{item.director}}
+                          </h6>
                         </b-card-text>
                         <b-card-text>
-                          Durasi Film {{item.duration}} menit
                         </b-card-text>
                             <b-button v-on:click="callFunction" data-id="2" v-b-modal:[`example-modal-${item.id}`]>Click For Detail</b-button>
                             <b-modal :id="`example-modal-${item.id}`">
@@ -37,9 +42,7 @@
                                             <p>Director : {{item.director}}</p>
                                             <p>Release Year : {{item.releaseYear}}</p>
                                             <p>Duration : {{item.duration}} minute</p>
-                                            <p>Genre : </p>
-                                            <span v-for="item in getgenre" :key="item">{{item.genreID}} , </span>
-                                        
+                                            <p>Actor : {{item.actor}} </p>
                                         </div>
                                     </div>
                                     <p>Desc : {{item.description}}</p>
@@ -142,7 +145,8 @@ export default {
         let year = (item.releaseYear || "").toLowerCase() 
         let duration = (item.duration || "").toLowerCase() 
         let director = (item.director || "").toLowerCase() 
-        return  title.indexOf(searchTerm) > -1 || year.indexOf(searchTerm) > -1 || duration.indexOf(searchTerm) > -1 || director.indexOf(searchTerm) > -1  
+        let actor = (item.actor || "").toLowerCase() 
+        return  title.indexOf(searchTerm) > -1 || year.indexOf(searchTerm) > -1 || duration.indexOf(searchTerm) > -1 || director.indexOf(searchTerm) > -1  || actor.indexOf(searchTerm) > -1
       })
     },
     getgenre: function() {
@@ -155,5 +159,7 @@ export default {
   },
     
 };
+
+
 
 </script>
