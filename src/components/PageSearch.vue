@@ -3,16 +3,16 @@
         <div class="container d-flex justify-content-center">
             <div>FILMKU</div>
             <div style="width: 25%"></div>
-            <b-form-input v-model="text" placeholder="Search Film"></b-form-input>
+            <b-form-input v-model="search"  placeholder="Search Film"></b-form-input>
         </div>
         <hr>
         <div class="container d-flex">
           <div class="row">
-            <div v-for="item in 10" :key="item.id" class="w-25">
+            <div v-for="item in filteredSheeps" :key="item" class="card1">      
                     <div>
                       <b-card
-                        title="Card Title"
-                        img-src="https://picsum.photos/600/300/?image=25"
+                        :title="item.title"
+                        :img-src="item.urlPic"
                         img-alt="Image"
                         img-top
                         tag="article"
@@ -20,8 +20,36 @@
                         class="mb-2"
                       >
                         <b-card-text>
-                          Some quick example text to build on the card title and make up the bulk of the card's content.
+                          Rilis Pada Tahun {{item.releaseYear}}
                         </b-card-text>
+                        <b-card-text>
+                          Durasi Film {{item.duration}} menit
+                        </b-card-text>
+                            <b-button v-on:click="callFunction" data-id="2" v-b-modal:[`example-modal-${item.id}`]>Click For Detail</b-button>
+                            <b-modal :id="`example-modal-${item.id}`">
+                                 <h2>{{item.title}}</h2>
+                                <div class="container">
+                                    <div class="row">
+                                        <div class="col"> 
+                                            <img :src="item.urlPic" alt="" style="width: 100%">
+                                        </div>
+                                        <div class="col">
+                                            <p>Director : {{item.director}}</p>
+                                            <p>Release Year : {{item.releaseYear}}</p>
+                                            <p>Duration : {{item.duration}} minute</p>
+                                            <p>Genre : </p>
+                                            <span v-for="item in getgenre" :key="item">{{item.genreID}} , </span>
+                                        
+                                        </div>
+                                    </div>
+                                    <p>Desc : {{item.description}}</p>
+                                </div>
+                                <div class="container">
+                                    <h4>Rekomendasi Film</h4>
+                                </div>
+                                <div>
+                                </div>
+                            </b-modal>
                       </b-card>
                     </div>     
             </div>
@@ -32,6 +60,11 @@
 </template>
 
 <style scoped>
+@media (min-width: 761px) {
+    .card1{
+        width: 250px;
+    }
+}
 h3 {
   margin: 40px 0 0;
 }
@@ -49,6 +82,7 @@ a {
 </style>
 
 
+
 <script>
 // import axios
 import axios from "axios";
@@ -57,12 +91,15 @@ export default {
   data() {
     return {
       items: [],
-      search: null
+      genre: [],
+      search: null,
+      searcht: null,
     };
   },
  
   created() {
     this.getProducts();
+    this.getGenreFilm();
     
   },
   
@@ -79,18 +116,42 @@ export default {
         console.log(err);
       }
     },
+    async getGenreFilm() {
+      try {
+        const response = await axios.get("http://localhost:5000/api/genres");
+        this.genre = response.data.data;
+        console.log(this.genre)
+      } catch (err) {
+        console.log(err);
+      }
+    },
+
+    callFunction: function (event) {
+        var id = event.target.getAttribute('data-id');
+        console.log(id);
+    }
+
+
     // Delete Product
   },
   computed: {
     filteredSheeps: function() {
       let searchTerm = (this.search || "").toLowerCase()
       return this.items.filter(function(item) {
-        let id = (item.id || "").toLowerCase() 
-        let titel = (item.titel || "").toLowerCase() 
-        let actor = (item.actor || "").toLowerCase() 
-        return id.indexOf(searchTerm) > -1 || titel.indexOf(searchTerm) > -1 || actor.indexOf(searchTerm) > -1 
+        let title = (item.title || "").toLowerCase() 
+        let year = (item.releaseYear || "").toLowerCase() 
+        let duration = (item.duration || "").toLowerCase() 
+        let director = (item.director || "").toLowerCase() 
+        return  title.indexOf(searchTerm) > -1 || year.indexOf(searchTerm) > -1 || duration.indexOf(searchTerm) > -1 || director.indexOf(searchTerm) > -1  
       })
-    }
+    },
+    getgenre: function() {
+      let searchTerm = (this.searcht || "").toLowerCase()
+      return this.genre.filter(function(genre) {
+        let genreid = (genre.id || "").toLowerCase() 
+        return  genreid.indexOf(searchTerm) > -1 
+      })
+    },
   },
     
 };
