@@ -12,7 +12,7 @@
         <hr>
         <div class="container d-flex">
           <div class="row">
-            <div v-for="item in filteredSheeps" :key="item" class="card1">      
+            <div v-for="item in resultQuery" :key="item" class="card1">      
                     <div>
                       <b-card
                         :title="item.title + ' (' +  item.releaseYear + ')' "
@@ -30,8 +30,8 @@
                         </b-card-text>
                         <b-card-text>
                         </b-card-text>
-                            <b-button v-on:click="callFunction" data-id="2" v-b-modal:[`example-modal-${item.id}`]>Click For Detail</b-button>
-                            <b-modal :id="`example-modal-${item.id}`">
+                            <b-button  data-id="2" v-b-modal:[`example-modal-${item.id}`] >Click For Detail</b-button>
+                            <b-modal :id="`example-modal-${item.id}`" v-model="searchgenre">
                                  <h2>{{item.title}}</h2>
                                 <div class="container">
                                     <div class="row">
@@ -42,13 +42,18 @@
                                             <p>Director : {{item.director}}</p>
                                             <p>Release Year : {{item.releaseYear}}</p>
                                             <p>Duration : {{item.duration}} minute</p>
-                                            <p>Actor : {{item.actor}} </p>
+                                            <p>Actor : {{item.actor}} </p>  
+                                            <p>Actor : {{genre}} </p>  
+                                            <div :key="subs" v-for="subs in resultQuery1"> 
+                                                <!-- <div v-if="subs.genreID == item.sub"> -->
+                                                    <p>{{subs.genreID}}</p> 
+                                                <!-- </div> -->
+                                            </div>
                                         </div>
                                     </div>
                                     <p>Desc : {{item.description}}</p>
                                 </div>
                                 <div class="container">
-                                    <h4>Rekomendasi Film</h4>
                                 </div>
                                 <div>
                                 </div>
@@ -93,17 +98,16 @@ export default {
   name: "Content",
   data() {
     return {
-      items: [],
-      genre: [],
-      search: null,
-      searcht: null,
+        items: [],
+        genre: [],
+        search: null,
+        searchgenre: null,
     };
   },
  
   created() {
     this.getProducts();
     this.getGenreFilm();
-    
   },
   
  
@@ -113,50 +117,80 @@ export default {
       try {
         const response = await axios.get("http://localhost:5000/api/filmku");
         this.items = response.data.data;
-        console.log(this.items)
+        console.log(this.items);
 
       } catch (err) {
         console.log(err);
       }
     },
+    
     async getGenreFilm() {
-      try {
-        const response = await axios.get("http://localhost:5000/api/genres");
-        this.genre = response.data.data;
-        console.log(this.genre)
+        try {
+        for(var i = 1 ; i <= 30; i++){
+            if(i == 4 ){
+                continue
+            }
+            else {
+                let x = String
+                if(i < 10) {
+                    x = "http://example.com/0"+i
+                }
+                else {
+                    x = "http://example.com/"+i
+                }
+            const response = await axios.get("http://localhost:5000/api/genres?sub="+x);
+            this.genre = response.data.data
+            // console.log(this.checks)
+            }
+
+        }
+        // console.log("1")
+
       } catch (err) {
         console.log(err);
       }
     },
-
-    callFunction: function (event) {
-        var id = event.target.getAttribute('data-id');
-        console.log(id);
-    }
 
 
     // Delete Product
   },
   computed: {
-    filteredSheeps: function() {
-      let searchTerm = (this.search || "").toLowerCase()
-      return this.items.filter(function(item) {
-        let title = (item.title || "").toLowerCase() 
-        let year = (item.releaseYear || "").toLowerCase() 
-        let duration = (item.duration || "").toLowerCase() 
-        let director = (item.director || "").toLowerCase() 
-        let actor = (item.actor || "").toLowerCase() 
-        return  title.indexOf(searchTerm) > -1 || year.indexOf(searchTerm) > -1 || duration.indexOf(searchTerm) > -1 || director.indexOf(searchTerm) > -1  || actor.indexOf(searchTerm) > -1
+    // filteredSheeps: function() {
+    //   let searchTerm = (this.search || "").toLowerCase()
+    //   return this.items.filter(function(item) {
+    //     let title = (item.title || "").toLowerCase() 
+    //     let year = (item.releaseYear || "").toLowerCase() 
+    //     let duration = (item.duration || "").toLowerCase() 
+    //     let director = (item.director || "").toLowerCase() 
+    //     let actor = (item.actor || "").toLowerCase() 
+    //     return  title.indexOf(searchTerm) > -1 || year.indexOf(searchTerm) > -1 || duration.indexOf(searchTerm) > -1 || director.indexOf(searchTerm) > -1  || actor.indexOf(searchTerm) > -1
+    //   })
+    // },
+    resultQuery(){
+      if(this.search){
+      return this.items.filter((item)=>{
+            let judul = this.search.toLowerCase().split(' ').every(v => item.title.toLowerCase().includes(v))
+            let year = this.search.toLowerCase().split(' ').every(v => item.releaseYear.toLowerCase().includes(v))
+            let duration = this.search.toLowerCase().split(' ').every(v => item.duration.toLowerCase().includes(v))
+            let director = this.search.toLowerCase().split(' ').every(v => item.director.toLowerCase().includes(v))
+            let actor = this.search.toLowerCase().split(' ').every(v => item.actor.toLowerCase().includes(v))
+        return judul || year || duration || director || actor 
       })
+      }else{
+        return this.items;
+      }
     },
-    getgenre: function() {
-      let searchTerm = (this.searcht || "").toLowerCase()
-      return this.genre.filter(function(genre) {
-        let genreid = (genre.id || "").toLowerCase() 
-        return  genreid.indexOf(searchTerm) > -1 
-      })
-    },
-  },
+    resultQuery1(){
+          if(this.searchgenre){
+          return this.items.filter((genre)=>{
+                let genres = this.searchgenre.toLowerCase().split(' ').every(v => genre.genreID.toLowerCase().includes(v))
+            return genres
+          })
+          }else{
+            return this.items;
+          }
+        },
+      },
     
 };
 
